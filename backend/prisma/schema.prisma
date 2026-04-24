@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model autores {
+  id     Int      @id @default(autoincrement())
+  nome   String   @db.VarChar(200)
+  livros livros[]
+}
+
+model categorias {
+  id     Int      @id @default(autoincrement())
+  nome   String   @db.VarChar(200)
+  livros livros[]
+}
+
+model livros {
+  id              Int        @id @default(autoincrement())
+  titulo          String     @db.VarChar(200)
+  descricao       String?
+  edicao          String?    @db.VarChar(10)
+  autorId         Int        @map("autor_id")
+  categoriaId     Int        @map("categoria_id")
+  img             String?    @db.VarChar(300)
+  idioma          String?    @db.VarChar(100)
+  num_paginas     Int?
+  editora         String?    @db.VarChar(200)
+  estoque         Int?
+  data_publicacao DateTime?  @map("data_publicacao") @db.Date
+  autores         autores    @relation(fields: [autorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_livros_autores")
+  categorias      categorias @relation(fields: [categoriaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_livros_categorias")
+  pedidos         pedidos[]
+
+  @@map("livros")
+}
+
+model usuarios {
+  id                    Int      @id @default(autoincrement())
+  nome                  String   @db.VarChar(200)
+  matricula             String?  @unique @db.VarChar(20)
+  perfil                String   @db.VarChar(20)
+  curso                 String?  @db.VarChar(100)
+  cpf                   String   @unique @db.Char(11)
+  data_nascimento       DateTime @db.Date
+  email                 String   @unique @db.VarChar(200)
+  senha                 String   @db.VarChar(100)
+  status                String   @db.VarChar(20)
+  pedidos_criados       pedidos[] @relation("PedidosCriados")
+  pedidos_aprovados     pedidos[] @relation("PedidosAprovados")
+}
+
+model pedidos {
+  id                  Int       @id @default(autoincrement())
+  uuid                String    @unique @default(cuid())
+  livro_id            Int
+  usuario_id          Int
+  data_inicio         DateTime? @db.Date
+  data_prevista       DateTime? @db.Date
+  data_entrega        DateTime? @db.Date
+  status              String?   @db.VarChar(20)
+  aprovado_por        Int?
+  motivo_reprovacao   String?
+  matricula_snapshot  String?
+  cpf_snapshot        String?
+  usuarios            usuarios  @relation("PedidosCriados", fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pedidos_usuarios")
+  colaborador         usuarios? @relation("PedidosAprovados", fields: [aprovado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pedidos_aprovados")
+  livros              livros    @relation(fields: [livro_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pedidos_livros")
+}
