@@ -72,16 +72,20 @@ export default function Catalogo() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedLivro, setSelectedLivro] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [categoriaFilter, setCategoriaFilter] = useState('');
 
   const [viewModal, setViewModal] = useState({ open: false, livro: null });
 
   const vl = viewModal.livro;
 
-  const filtered = livros.filter(l =>
+const filtered = livros.filter(l => {
+  const matchSearch =
     l.titulo.toLowerCase().includes(search.toLowerCase()) ||
     l.autores?.nome?.toLowerCase().includes(search.toLowerCase()) ||
-    l.categorias?.nome?.toLowerCase().includes(search.toLowerCase())
-  );
+    l.categorias?.nome?.toLowerCase().includes(search.toLowerCase());
+  const matchCat = !categoriaFilter || l.categorias?.nome === categoriaFilter;
+  return matchSearch && matchCat;
+});
 
   const { paginatedItems, page, totalPages, setPage, resetPage } = usePagination(filtered, 12);
 
@@ -115,8 +119,23 @@ export default function Catalogo() {
     }
   };
 
-  return (
-    <Layout title="Catálogo de Livros" atraso={atraso}>
+  const categoriasUnicas = [...new Set(livros.map(l => l.categorias?.nome).filter(Boolean))].sort();
+
+return (
+  <Layout
+    title="Catálogo de Livros"
+    atraso={atraso}
+    filters={
+      <select
+        className="filter-select"
+        value={categoriaFilter}
+        onChange={e => { setCategoriaFilter(e.target.value); resetPage(); }}
+      >
+        <option value="">Todas as categorias</option>
+        {categoriasUnicas.map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+    }
+  >
       <div className="page-toolbar">
         <SearchBox
           value={search}

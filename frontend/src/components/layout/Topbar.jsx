@@ -1,11 +1,28 @@
 import { useAuth } from '../../context/AuthContext';
 
-export function Topbar({ title, atraso }) {
+export function Topbar({ title, atraso, sidebarOpen, onToggleSidebar, filters }) {
   const { user } = useAuth();
 
   return (
     <header className="topbar">
-      <h1 className="topbar__title">{title}</h1>
+      <div className="topbar__left">
+        <button
+          className="topbar__toggle"
+          onClick={onToggleSidebar}
+          title={sidebarOpen ? 'Recolher menu' : 'Expandir menu'}
+          aria-label="Toggle sidebar"
+        >
+          <span className={`topbar__toggle-icon${sidebarOpen ? '' : ' topbar__toggle-icon--closed'}`}>
+            <span /><span /><span />
+          </span>
+        </button>
+        <h1 className="topbar__title">{title}</h1>
+      </div>
+
+      <div className="topbar__center">
+        {filters && <div className="topbar__filters">{filters}</div>}
+      </div>
+
       <div className="topbar__alerts">
         {user?.status === 'bloqueado' && (
           <div className="topbar__alert">

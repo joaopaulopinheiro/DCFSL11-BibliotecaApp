@@ -13,13 +13,18 @@ import {swaggerUi, swaggerDocument} from '../swagger.js';
 const app = express(); // Criando a aplicação Express
 
 // Middleware de CORS
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+}));
 
 // Middleware para parsear JSON - DEVE VIR ANTES DAS ROTAS
 app.use(express.json());
 
 // Configurando o Swagger
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+}
 
 // Servindo arquivos estáticos da pasta "public"
 app.use(express.static('public'));

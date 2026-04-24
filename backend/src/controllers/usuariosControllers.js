@@ -28,9 +28,8 @@ export async function getUsuarioById(req, res) {
   if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'ID inválido' });
 
   try {
-    const usuario = await prisma.usuarios.findUnique({
-      where: { id },
-      where: { status: { not: 'deletado' } }, // Excluir usuários bloqueados
+    const usuario = await prisma.usuarios.findFirst({
+      where: { id, status: { not: 'deletado' } },
     });
     if (!usuario) return res.status(404).json({ error: 'Usuário não encontrado' });
     res.json(usuario);
@@ -156,16 +155,22 @@ export async function deleteUsuario(req, res) {
   if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'ID inválido' });
 
   try {
+    // Bloqueia exclusão apenas se houver pedidos ainda em aberto
+    const pedidosAtivos = await prisma.pedidos.count({
+      where: { usuario_id: id, status: { in: ['pendente', 'aprovado'] } },
+    });
+    if (pedidosAtivos > 0) {
+      return res.status(409).json({ error: 'Usuário possui pedidos pendentes ou aprovados.' });
+    }
+
     const usuarioAtualizado = await prisma.usuarios.update({
       where: { id },
-      data: { status: 'deletado' }  // Marca como deletado
+      data: { status: 'deletado' },
     });
-    res.json(usuarioAtualizado);
+    res.status(204).send();
   } catch (err) {
     console.error('Erro ao deletar usuário:', err);
-    if (err.code === 'P2025') {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Usuário não encontrado' });
     res.status(500).json({ error: 'Erro ao deletar usuário' });
   }
 }

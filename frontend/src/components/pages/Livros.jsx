@@ -19,6 +19,7 @@ export default function Livros() {
   const [categorias, setCategorias] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [categoriaFilter, setCategoriaFilter] = useState('');
 
   const [viewModal, setViewModal] = useState({ open: false, livro: null });
   const [formModal, setFormModal] = useState({ open: false, livro: null });
@@ -40,10 +41,13 @@ export default function Livros() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const filtered = livros.filter(l =>
+const filtered = livros.filter(l => {
+  const matchSearch =
     l.titulo.toLowerCase().includes(search.toLowerCase()) ||
-    l.autores?.nome?.toLowerCase().includes(search.toLowerCase())
-  );
+    l.autores?.nome?.toLowerCase().includes(search.toLowerCase());
+  const matchCat = !categoriaFilter || l.categorias?.nome === categoriaFilter;
+  return matchSearch && matchCat;
+});
 
   const handleOpenForm = (livro = null) => {
     if (livro) {
@@ -101,8 +105,22 @@ export default function Livros() {
 
   const vl = viewModal.livro;
 
-  return (
-    <Layout title="Livros">
+  const categoriasUnicas = [...new Set(livros.map(l => l.categorias?.nome).filter(Boolean))].sort();
+
+return (
+  <Layout
+    title="Livros"
+    filters={
+      <select
+        className="filter-select"
+        value={categoriaFilter}
+        onChange={e => setCategoriaFilter(e.target.value)}
+      >
+        <option value="">Todas as categorias</option>
+        {categoriasUnicas.map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+    }
+  >
       <div className="page-toolbar">
         <SearchBox value={search} onChange={setSearch} placeholder="Buscar por título ou autor..." />
         {isAdminOrColab(user) && (

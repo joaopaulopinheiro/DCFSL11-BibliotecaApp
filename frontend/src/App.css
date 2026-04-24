@@ -1067,3 +1067,97 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   .login-card { padding: 1.75rem 1.25rem; }
   .authors-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }
+
+/* ═══════════════════════════════════════
+   SIDEBAR TOGGLE
+═══════════════════════════════════════ */
+.app-layout.sidebar-collapsed .sidebar {
+  transform: translateX(calc(-1 * var(--sidebar-w)));
+}
+
+.app-layout.sidebar-collapsed .app-main {
+  margin-left: 0;
+}
+
+/* ── Topbar toggle button ── */
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  flex-shrink: 0;
+}
+
+.topbar__toggle {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  padding: 0;
+}
+.topbar__toggle:hover {
+  background: var(--gold-pale);
+  border-color: var(--gold-light);
+}
+
+.topbar__toggle-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 16px;
+}
+.topbar__toggle-icon span {
+  display: block;
+  height: 2px;
+  background: var(--ink-3);
+  border-radius: 2px;
+  transition: all var(--transition);
+  transform-origin: left center;
+}
+.topbar__toggle-icon--closed span:nth-child(1) { transform: rotate(0) translateY(0); width: 100%; }
+.topbar__toggle-icon--closed span:nth-child(2) { width: 75%; }
+.topbar__toggle-icon--closed span:nth-child(3) { width: 50%; }
+
+/* ── Topbar center (filters) ── */
+.topbar__center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.topbar__filters {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Filter select ── */
+.filter-select {
+  padding: 6px 32px 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 500;
+  background: var(--cream-2);
+  color: var(--ink);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--transition);
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239e9189' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.filter-select:hover,
+.filter-select:focus {
+  border-color: var(--gold);
+  background-color: var(--cream);
+}
+.filter-select option[value=""] { color: var(--ink-4); }

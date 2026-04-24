@@ -193,4 +193,21 @@ export const pedidosPaths = {
       },
     },
   },
+  '/pedidos/{id}/cancelar': {
+  post: {
+    tags: ['Pedidos'],
+    summary: 'Cancela um pedido pendente (próprio aluno)',
+    description: 'O aluno cancela o próprio pedido. Só é permitido se o pedido estiver com status pendente.',
+    security: [{ bearerAuth: [] }],
+    parameters: [idParam],
+    responses: {
+      200: { description: 'Pedido cancelado com sucesso', ...resPedido },
+      400: { description: 'Pedido não está pendente',     ...resErro  },
+      401: { description: 'Token não fornecido ou inválido', ...resErro },
+      403: { description: 'Tentativa de cancelar pedido de outro usuário', ...resErro },
+      404: { description: 'Pedido não encontrado',        ...resErro  },
+      500: { description: 'Erro interno do servidor',     ...resErro  },
+    },
+  },
+},
 };

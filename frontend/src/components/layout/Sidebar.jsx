@@ -9,7 +9,7 @@ function colorFromString(str) {
   return colors[Math.abs(hash) % colors.length];
 }
 
-export function Sidebar() {
+export function Sidebar({ open }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -46,7 +46,7 @@ export function Sidebar() {
   const avatarColor = user?.username ? colorFromString(user.username) : '#c8902e';
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${open ? ' sidebar--open' : ' sidebar--closed'}`}>
       {/* Brand */}
       <div className="sidebar__brand">
         <span className="sidebar__logo">📚</span>

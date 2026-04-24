@@ -46,9 +46,13 @@ export default function Pedidos() {
     return usuarios.find(u => u.id === id)?.nome || `#${id}`;
   }, [user, usuarios]);
 
-  const myPedidos = isAdminOrColab(user)
-    ? pedidos
-    : pedidos.filter(p => p.usuario_id === user.userId);
+const usuariosDeletadosIds = new Set(
+  usuarios.filter(u => u.status === 'deletado').map(u => u.id)
+);
+
+const myPedidos = isAdminOrColab(user)
+  ? pedidos.filter(p => !usuariosDeletadosIds.has(p.usuario_id))
+  : pedidos.filter(p => p.usuario_id === user.userId);
 
   const filtered = myPedidos.filter(p => {
     const titulo = getLivroTitulo(p.livro_id).toLowerCase();
@@ -107,19 +111,27 @@ export default function Pedidos() {
 
   const vp = viewModal.pedido;
 
-  return (
-    <Layout title="Pedidos de Empréstimo" atraso={atraso}>
-      <div className="page-toolbar">
-        <SearchBox value={search} onChange={setSearch} placeholder="Buscar por livro..." />
-        <select className="form-select" style={{ maxWidth: 180 }} value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}>
-          <option value="">Todos os status</option>
-          {STATUS_OPTIONS.map(s => (
-            <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-          ))}
-        </select>
-        <span className="page-toolbar__count">{filtered.length} pedido(s)</span>
-      </div>
+ return (
+  <Layout
+    title="Pedidos de Empréstimo"
+    atraso={atraso}
+    filters={
+      <select
+        className="filter-select"
+        value={statusFilter}
+        onChange={e => setStatusFilter(e.target.value)}
+      >
+        <option value="">Todos os status</option>
+        {STATUS_OPTIONS.map(s => (
+          <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+        ))}
+      </select>
+    }
+  >
+    <div className="page-toolbar">
+      <SearchBox value={search} onChange={setSearch} placeholder="Buscar por livro..." />
+      <span className="page-toolbar__count">{filtered.length} pedido(s)</span>
+    </div>
 
       {loading ? (
         <div className="loading-state">Carregando pedidos...</div>
